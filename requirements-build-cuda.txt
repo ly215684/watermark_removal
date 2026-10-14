@@ -1,0 +1,19 @@
+# Build requirements - CUDA (NVIDIA GPU accelerated) build.
+# Same core as the CPU build but with the cu121 PyTorch wheels so the exe runs
+# LaMa / STTN / ProPainter on an NVIDIA GPU. Requires a driver that supports
+# CUDA 12.1 on the end user's machine.
+#
+# NOTE: the CUDA build is packed as an onedir (folder) archive in CI, because a
+# single-file exe with the bundled CUDA libraries would exceed GitHub Release's
+# 2 GB per-asset limit. See watermark_removal.spec / build-release.yml.
+
+PySide6>=6.6
+numpy>=1.24
+opencv-python>=4.8
+Pillow>=10.0
+requests>=2.31
+
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch
+
+pyinstaller>=6.6

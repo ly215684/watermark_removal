@@ -1,0 +1,15 @@
+# Build requirements - CPU / portable single-file exe.
+# Bundles PySide6 + OpenCV + NumPy + Pillow + requests + CPU torch (LaMa).
+# Florence-2 / PaddleOCR / STTN / ProPainter are intentionally NOT bundled; they
+# degrade gracefully at runtime. Model weights download on first use.
+
+PySide6>=6.6
+numpy>=1.24
+opencv-python>=4.8
+Pillow>=10.0
+requests>=2.31
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+
+pyinstaller>=6.6

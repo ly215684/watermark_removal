@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+*_Env/
+
+# PyInstaller
+build/
+dist/
+*.manifest
+
+# Generated icon artifacts (created from assets/make_icon.py at build time)
+assets/app.ico
+assets/app.png
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+
+# Local model cache / outputs (weights live in ~/.watermarkremoval)
+*.part
