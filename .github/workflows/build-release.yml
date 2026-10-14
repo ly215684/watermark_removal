@@ -6,6 +6,10 @@ on:
       - "v*"
   workflow_dispatch:
     inputs:
+      version:
+        description: "Release version tag (e.g. v1.2.3). Leave empty to use dev-<sha>"
+        required: false
+        default: ""
       prerelease:
         description: "Mark the created release as pre-release"
         required: false
@@ -94,7 +98,11 @@ jobs:
             echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           else
-            echo "version=dev-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+            if [ -n "${{ github.event.inputs.version }}" ]; then
+              echo "version=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+            else
+              echo "version=dev-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+            fi
             echo "prerelease=${{ github.event.inputs.prerelease }}" >> "$GITHUB_OUTPUT"
           fi
 
