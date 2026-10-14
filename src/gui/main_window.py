@@ -78,16 +78,14 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(central)
 
-        # bottom status area
-        status = QWidget()
-        v = QHBoxLayout(status)
+        # bottom status bar
+        self.status_label = QLabel("Ready")
         self.progress = QProgressBar()
         self.progress.setRange(0, 100)
         self.progress.setValue(0)
-        self.status_label = QLabel("Ready")
-        v.addWidget(self.status_label)
-        v.addWidget(self.progress, 1)
-        self.setStatusBarWidget(status)
+        bar = self.statusBar()
+        bar.addWidget(self.status_label)
+        bar.addPermanentWidget(self.progress)
 
         # log dock
         self.log_view = QPlainTextEdit()
