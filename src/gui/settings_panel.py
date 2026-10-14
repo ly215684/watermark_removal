@@ -43,89 +43,89 @@ class SettingsPanel(QWidget):
 
     # --- widget groups -----------------------------------------------------
     def _build_tools(self) -> QWidget:
-        box = QGroupBox("Mask tools")
+        box = QGroupBox("遮罩工具")
         form = QFormLayout(box)
         self.tool_combo = QComboBox()
-        self.tool_combo.addItem("Rectangle", Tool.RECT)
-        self.tool_combo.addItem("Brush", Tool.BRUSH)
-        self.tool_combo.addItem("Eraser", Tool.ERASER)
+        self.tool_combo.addItem("矩形", Tool.RECT)
+        self.tool_combo.addItem("画笔", Tool.BRUSH)
+        self.tool_combo.addItem("橡皮擦", Tool.ERASER)
         self.tool_combo.currentIndexChanged.connect(
             lambda: self.toolChanged.emit(self.tool_combo.currentData()))
-        form.addRow("Tool", self.tool_combo)
+        form.addRow("工具", self.tool_combo)
 
         self.brush_slider = QSlider()
         self.brush_slider.setOrientation(Qt.Horizontal)
         self.brush_slider.setRange(2, 200)
         self.brush_slider.setValue(25)
         self.brush_slider.valueChanged.connect(self.brushSizeChanged.emit)
-        form.addRow("Brush size", self.brush_slider)
+        form.addRow("画笔大小", self.brush_slider)
         return box
 
     def _build_detection(self) -> QWidget:
-        box = QGroupBox("Detection")
+        box = QGroupBox("检测")
         form = QFormLayout(box)
         self.method_combo = QComboBox()
-        self.method_combo.addItem("Manual (draw mask)", "manual")
-        self.method_combo.addItem("Auto - Florence-2", "florence2")
-        self.method_combo.addItem("Auto - PaddleOCR (text)", "paddleocr")
-        form.addRow("Method", self.method_combo)
+        self.method_combo.addItem("手动（绘制遮罩）", "manual")
+        self.method_combo.addItem("自动 - Florence-2", "florence2")
+        self.method_combo.addItem("自动 - PaddleOCR（文字）", "paddleocr")
+        form.addRow("方式", self.method_combo)
 
         self.prompt_edit = _line("watermark")
-        form.addRow("Prompt", self.prompt_edit)
+        form.addRow("提示词", self.prompt_edit)
 
         self.skip_spin = _spin(1, 10, 1)
-        form.addRow("Detect every N frames", self.skip_spin)
+        form.addRow("每 N 帧检测一次", self.skip_spin)
 
         self.maxbbox_spin = _dspin(1.0, 100.0, 25.0)
-        form.addRow("Max box % of frame", self.maxbbox_spin)
+        form.addRow("框最大占画面百分比", self.maxbbox_spin)
         return box
 
     def _build_propagation(self) -> QWidget:
-        box = QGroupBox("Dynamic watermark (video)")
+        box = QGroupBox("动态水印（视频）")
         form = QFormLayout(box)
         self.prop_combo = QComboBox()
-        for label, val in [("Auto", "auto"), ("Static (none)", "none"),
-                           ("Optical flow", "flow"), ("Tracking", "tracking")]:
+        for label, val in [("自动", "auto"), ("静态（不处理）", "none"),
+                           ("光流", "flow"), ("跟踪", "tracking")]:
             self.prop_combo.addItem(label, val)
-        form.addRow("Propagation", self.prop_combo)
+        form.addRow("传播方式", self.prop_combo)
 
         self.fade_in = _dspin(0.0, 30.0, 0.0)
         self.fade_out = _dspin(0.0, 30.0, 0.0)
-        form.addRow("Fade-in (s)", self.fade_in)
-        form.addRow("Fade-out (s)", self.fade_out)
+        form.addRow("淡入（秒）", self.fade_in)
+        form.addRow("淡出（秒）", self.fade_out)
         return box
 
     def _build_inpaint(self) -> QWidget:
-        box = QGroupBox("Inpaint engine")
+        box = QGroupBox("修复引擎")
         form = QFormLayout(box)
         self.engine_combo = QComboBox()
-        self.engine_combo.addItem("LaMa (image + per-frame)", "lama")
-        self.engine_combo.addItem("STTN (video temporal)", "sttn")
-        self.engine_combo.addItem("ProPainter (strong motion)", "propainter")
-        self.engine_combo.addItem("OpenCV (fast fallback)", "opencv")
-        form.addRow("Engine", self.engine_combo)
+        self.engine_combo.addItem("LaMa（图像 + 逐帧）", "lama")
+        self.engine_combo.addItem("STTN（视频时序）", "sttn")
+        self.engine_combo.addItem("ProPainter（强运动）", "propainter")
+        self.engine_combo.addItem("OpenCV（快速回退）", "opencv")
+        form.addRow("引擎", self.engine_combo)
 
-        self.lama_fast = QCheckBox("LaMa super-fast (downscale)")
-        self.double_pass = QCheckBox("Double pass (less residual)")
+        self.lama_fast = QCheckBox("LaMa 极速（降采样）")
+        self.double_pass = QCheckBox("双重修复（减少残留）")
         form.addRow(self.lama_fast)
         form.addRow(self.double_pass)
 
         self.sttn_neighbor = _spin(1, 50, 10)
         self.sttn_ref = _spin(1, 50, 10)
         self.sttn_load = _spin(5, 100, 30)
-        form.addRow("STTN neighbor stride", self.sttn_neighbor)
-        form.addRow("STTN reference length", self.sttn_ref)
-        form.addRow("STTN max load num", self.sttn_load)
+        form.addRow("STTN 邻近帧步长", self.sttn_neighbor)
+        form.addRow("STTN 参考帧长度", self.sttn_ref)
+        form.addRow("STTN 最大加载数", self.sttn_load)
         return box
 
     def _build_actions(self) -> QWidget:
-        box = QGroupBox("Actions")
+        box = QGroupBox("操作")
         v = QVBoxLayout(box)
-        self.preview_btn = QPushButton("Preview detection")
+        self.preview_btn = QPushButton("预览检测")
         self.preview_btn.clicked.connect(self.requestPreview.emit)
-        self.process_btn = QPushButton("Start removal")
+        self.process_btn = QPushButton("开始去除")
         self.process_btn.clicked.connect(self.requestProcess.emit)
-        self.cancel_btn = QPushButton("Cancel")
+        self.cancel_btn = QPushButton("取消")
         self.cancel_btn.clicked.connect(self.requestCancel.emit)
         self.cancel_btn.setEnabled(False)
         v.addWidget(self.preview_btn)

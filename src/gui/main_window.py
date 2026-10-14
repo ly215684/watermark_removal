@@ -42,7 +42,7 @@ _logger = get_logger("gui.main")
 class MainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("AI Watermark Remover")
+        self.setWindowTitle("AI 水印去除工具")
         self._apply_window_icon()
         self.resize(1200, 760)
 
@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
         hbox.addWidget(left, 3)
 
         self.settings_panel = SettingsPanel()
-        dock = QDockWidget("Settings", self)
+        dock = QDockWidget("设置", self)
         dock.setWidget(self.settings_panel)
         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
         self.addDockWidget(Qt.RightDockWidgetArea, dock)
@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
 
         # bottom status bar
-        self.status_label = QLabel("Ready")
+        self.status_label = QLabel("就绪")
         self.progress = QProgressBar()
         self.progress.setRange(0, 100)
         self.progress.setValue(0)
@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
         # log dock
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
-        log_dock = QDockWidget("Log", self)
+        log_dock = QDockWidget("日志", self)
         log_dock.setWidget(self.log_view)
         self.addDockWidget(Qt.BottomDockWidgetArea, log_dock)
 
@@ -117,30 +117,30 @@ class MainWindow(QMainWindow):
 
     def _build_menu(self) -> None:
         bar: QMenuBar = self.menuBar()
-        file_menu = bar.addMenu("File")
-        open_file = QAction("Open file…", self)
+        file_menu = bar.addMenu("文件")
+        open_file = QAction("打开文件…", self)
         open_file.setShortcut(QKeySequence("Ctrl+O"))
         open_file.triggered.connect(self.on_open_file)
-        open_dir = QAction("Open folder (batch)…", self)
+        open_dir = QAction("打开文件夹（批量）…", self)
         open_dir.triggered.connect(self.on_open_folder)
-        out_dir = QAction("Set output folder…", self)
+        out_dir = QAction("设置输出文件夹…", self)
         out_dir.triggered.connect(self.on_set_output_dir)
         file_menu.addAction(open_file)
         file_menu.addAction(open_dir)
         file_menu.addAction(out_dir)
 
-        models_menu = bar.addMenu("Models")
-        for key, label in [("lama", "Download LaMa"), ("sttn", "Download STTN"),
-                           ("propainter", "Download ProPainter")]:
+        models_menu = bar.addMenu("模型")
+        for key, label in [("lama", "下载 LaMa"), ("sttn", "下载 STTN"),
+                           ("propainter", "下载 ProPainter")]:
             act = QAction(label, self)
             act.triggered.connect(lambda checked=False, k=key: self.on_download_model(k))
             models_menu.addAction(act)
 
-        edit_menu = bar.addMenu("Edit")
-        undo = QAction("Undo mask", self)
+        edit_menu = bar.addMenu("编辑")
+        undo = QAction("撤销遮罩", self)
         undo.setShortcut(QKeySequence("Ctrl+Z"))
         undo.triggered.connect(self.canvas.undo)
-        clear = QAction("Clear mask", self)
+        clear = QAction("清除遮罩", self)
         clear.setShortcut(QKeySequence("Ctrl+Del"))
         clear.triggered.connect(self.canvas.clear_mask)
         edit_menu.addAction(undo)
@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
 
     def _update_device_label(self) -> None:
         info = detect()
-        self.device_label.setText(f"Device: {info.label}")
+        self.device_label.setText(f"设备：{info.label}")
 
     def _log(self, msg: str) -> None:
         self.log_view.appendPlainText(msg)
@@ -173,30 +173,30 @@ class MainWindow(QMainWindow):
     # --- open / load -------------------------------------------------------
     def on_open_file(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
-            self, "Open image or video", "",
+            self, "打开图片或视频", "",
             "Media (*.png *.jpg *.jpeg *.webp *.bmp *.tiff *.mp4 *.avi *.mov *.mkv *.flv *.wmv *.webm)")
         if not path:
             return
         self.load_media(Path(path))
 
     def on_open_folder(self) -> None:
-        folder = QFileDialog.getExistingDirectory(self, "Select folder to batch process")
+        folder = QFileDialog.getExistingDirectory(self, "选择要批量处理的文件夹")
         if not folder:
             return
         files = video_io.collect_media(folder)
         if not files:
-            QMessageBox.information(self, "Batch", "No supported media found in folder.")
+            QMessageBox.information(self, "批量处理", "文件夹中未找到支持的媒体文件。")
             return
         self._batch_paths = files
-        self._log(f"Batch: {len(files)} files queued.")
+        self._log(f"批量：已加入 {len(files)} 个文件。")
         # show first file for reference
         self.load_media(files[0])
 
     def on_set_output_dir(self) -> None:
-        folder = QFileDialog.getExistingDirectory(self, "Select output folder")
+        folder = QFileDialog.getExistingDirectory(self, "选择输出文件夹")
         if folder:
             self.settings_panel.set_output_dir(folder)
-            self._log(f"Output folder: {folder}")
+            self._log(f"输出文件夹：{folder}")
 
     def load_media(self, path: Path) -> None:
         self._input_path = path
@@ -208,7 +208,7 @@ class MainWindow(QMainWindow):
             img = video_io.load_image(path)
             self._current_frame = img
             self.canvas.set_frame(img)
-            self._log(f"Loaded image: {path.name} ({img.shape[1]}x{img.shape[0]})")
+            self._log(f"已加载图片：{path.name} ({img.shape[1]}x{img.shape[0]})")
         elif video_io.is_video(path):
             self._kind = MediaKind.VIDEO
             meta = video_io.probe(path)
@@ -218,10 +218,10 @@ class MainWindow(QMainWindow):
             self._current_frame = frame
             if frame is not None:
                 self.canvas.set_frame(frame)
-            self._log(f"Loaded video: {path.name} ({meta.width}x{meta.height}, "
-                      f"{meta.frame_count} frames @ {meta.fps:.1f}fps)")
+            self._log(f"已加载视频：{path.name} ({meta.width}x{meta.height}, "
+                      f"{meta.frame_count} 帧 @ {meta.fps:.1f}fps)")
         else:
-            QMessageBox.warning(self, "Unsupported", f"Not a supported file: {path.name}")
+            QMessageBox.warning(self, "不支持", f"不支持的文件：{path.name}")
 
     def on_frame_changed(self, index: int) -> None:
         if self._input_path is None or self._kind != MediaKind.VIDEO:
@@ -253,28 +253,28 @@ class MainWindow(QMainWindow):
     def on_preview(self) -> None:
         method = self.settings_panel.method_combo.currentData()
         if method == "manual" or self._current_frame is None:
-            self._log("Preview needs an auto detection method and a loaded frame.")
+            self._log("预览需要选择自动检测方式并已加载画面。")
             return
         s = self.settings_panel.to_settings()
-        self._log(f"Running {method} preview on current frame…")
+        self._log(f"正在对当前帧运行 {method} 预览…")
         self._preview_worker = PreviewWorker(self._current_frame.copy(), method, s)
         self._preview_worker.done.connect(self._on_preview_done)
-        self._preview_worker.failed.connect(lambda m: self._log(f"Preview failed: {m}"))
+        self._preview_worker.failed.connect(lambda m: self._log(f"预览失败：{m}"))
         self.settings_panel.preview_btn.setEnabled(False)
         self._preview_worker.start()
 
     def _on_preview_done(self, mask: np.ndarray) -> None:
         self.settings_panel.preview_btn.setEnabled(True)
         if mask is None or not mask.any():
-            self._log("Preview: nothing detected.")
+            self._log("预览：未检测到任何内容。")
             return
         self.canvas.set_mask(mask)
-        self._log("Preview: detection overlay applied (also saved as mask).")
+        self._log("预览：已应用检测叠加（同时保存为遮罩）。")
 
     # --- process -----------------------------------------------------------
     def on_start(self) -> None:
         if self._input_path is None:
-            QMessageBox.information(self, "Start", "Open a file first.")
+            QMessageBox.information(self, "开始处理", "请先打开文件。")
             return
         self._commit_current_mask()
         if self._batch_paths:
@@ -324,12 +324,12 @@ class MainWindow(QMainWindow):
     def _run_jobs(self, jobs: List[JobRequest]) -> None:
         self.settings_panel.set_processing(True)
         self.progress.setValue(0)
-        self._log(f"Starting {len(jobs)} job(s), engine={jobs[0].engine.value}, "
-                  f"detection={jobs[0].method.value}")
+        self._log(f"开始处理 {len(jobs)} 个任务，引擎={jobs[0].engine.value}，"
+                  f"检测={jobs[0].method.value}")
         self._worker = TaskWorker(jobs)
         self._worker.progress.connect(self._on_progress)
         self._worker.log.connect(self._log)
-        self._worker.job_done.connect(lambda out: self._log(f"Output: {out}"))
+        self._worker.job_done.connect(lambda out: self._log(f"输出：{out}"))
         self._worker.finished_all.connect(self._on_finished)
         self._worker.failed.connect(self._on_failed)
         self._worker.start()
@@ -341,28 +341,28 @@ class MainWindow(QMainWindow):
 
     def _on_finished(self) -> None:
         self.settings_panel.set_processing(False)
-        self.status_label.setText("Done")
+        self.status_label.setText("完成")
         self._batch_paths = []
         self._save_settings()
 
     def _on_failed(self, message: str) -> None:
         self.settings_panel.set_processing(False)
-        self.status_label.setText("Failed")
+        self.status_label.setText("失败")
         self._log(f"ERROR: {message}")
-        QMessageBox.critical(self, "Processing failed", message.splitlines()[0])
+        QMessageBox.critical(self, "处理失败", message.splitlines()[0])
 
     def on_cancel(self) -> None:
         if self._worker:
             self._worker.cancel()
-            self._log("Cancelling…")
+            self._log("正在取消…")
 
     # --- model download ----------------------------------------------------
     def on_download_model(self, key: str) -> None:
-        self._log(f"Downloading model: {key}")
+        self._log(f"正在下载模型：{key}")
         w = DownloadWorker(key)
         w.progress.connect(lambda v, m: self._on_progress(v, m))
-        w.finished_ok.connect(lambda p: self._log(f"Model ready: {p}"))
-        w.failed.connect(lambda m: self._log(f"Download failed: {m}"))
+        w.finished_ok.connect(lambda p: self._log(f"模型已就绪：{p}"))
+        w.failed.connect(lambda m: self._log(f"下载失败：{m}"))
         w.start()
         self._download_worker = w  # keep ref
 

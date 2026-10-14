@@ -58,7 +58,7 @@ class TaskWorker(QThread):
                 out = run(job, progress=_emit, cancel=self._cancel_check())
                 self.job_done.emit(out)
             if self._cancelled:
-                self.log.emit("Task cancelled by user.")
+                self.log.emit("任务已被用户取消。")
             self.finished_all.emit()
         except Exception as exc:  # noqa: BLE001
             _logger.error("Job failed: %s", exc)
@@ -82,7 +82,7 @@ class DownloadWorker(QThread):
         try:
             def _cb(done: int, total: int) -> None:
                 pct = int(100 * done / total) if total else 0
-                self.progress.emit(pct, f"downloading {self._key} ({done // 1024}KB)")
+                self.progress.emit(pct, f"正在下载 {self._key}（{done // 1024}KB）")
 
             path = downloader.ensure(self._key, progress=_cb)
             self.finished_ok.emit(str(path))
